@@ -1,6 +1,6 @@
 package org.example.dao;
 
-public record accountMovement(MovementType movementType, Integer value) {
+public record AccountMovement(MovementType movementType, Long value, Long accountId) {
 
     public enum MovementType{
         WITHDRAWAL

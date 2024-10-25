@@ -1,43 +1,37 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
+import lombok.Data;
+import org.example.entity.jsonView.BankAccountView;
+import org.example.entity.jsonView.UserView;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.UUID;
 
-@Entity
+@Entity()
 @Table(name = "user")
+@Data
 public class User implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id")
-    private Long id;
+    @JsonView(UserView.Admin.class)
+    private UUID id;
 
     @Column(nullable = false)
+    @JsonView(UserView.Detailed.class)
     private String name;
 
     @Column(nullable = false)
-    private String cpf;
+    @JsonView(UserView.Detailed.class)
+    private String email;
 
-    public User(String name, String cpf) {
-        this.name = name;
-        this.cpf = cpf;
-    }
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<BankAccount> userAccounts;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
 }

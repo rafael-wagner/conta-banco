@@ -1,26 +1,44 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
+import lombok.Data;
+import org.example.entity.jsonView.BankAccountView;
+import org.example.entity.jsonView.UserView;
 
-import java.util.Objects;
+import java.io.Serializable;
 
-@MappedSuperclass
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class BankAccount {
+@Data
+@Entity
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
+public abstract class BankAccount implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    protected Long id;
+    @JsonView(BankAccountView.Admin.class)
+    private Long id;
 
+    @JsonView(BankAccountView.Basic.class)
     private String bankOrigin;
+
+    @JsonView(BankAccountView.Basic.class)
     private String number;
+
+    @JsonView(BankAccountView.Basic.class)
     private String agency;
+
+    @JsonView(BankAccountView.Basic.class)
+    private Long balance;
+
+    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST})
+    @JoinColumn(name = "user_id")
+    @JsonView(UserView.Admin.class)
     private User user;
-    private Integer balance;
 
     public BankAccount() {}
 
-    public BankAccount(AccountBuilder builder) {
+    public BankAccount(Builder builder) {
         this.bankOrigin = builder.bankOrigin;
         this.agency = builder.agency;
         this.number = builder.number;
@@ -28,88 +46,46 @@ public abstract class BankAccount {
         this.balance = builder.balance;
     }
 
-    public String getBankOrigin() {
-        return bankOrigin;
+    /**
+     * Subtrai da conta o valor passado no parametro
+     * @param withdrawValue
+     * @return withdrawValue ou '0', caso nada foi retirado
+     */
+    public abstract Long withdraw(Long withdrawValue);
+
+    public void deposit(Long depositValue){
+        setBalance(getBalance() + depositValue);
     }
 
-    public void setBankOrigin(String bankOrigin) {
-        this.bankOrigin = bankOrigin;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public String getAgency() {
-        return agency;
-    }
-
-    public void setAgency(String agency) {
-        this.agency = agency;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Integer getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Integer balance) {
-        this.balance = balance;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BankAccount that = (BankAccount) o;
-        return Objects.equals(number, that.number) && Objects.equals(agency, that.agency) && Objects.equals(user, that.user) && Objects.equals(balance, that.balance);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(number, agency, user, balance);
-    }
-
-    public abstract static class AccountBuilder {
+    public abstract static class Builder {
 
         private String bankOrigin;
         private String number;
         private String agency;
         private User user;
-        private Integer balance;
+        private Long balance;
 
-        public AccountBuilder bankOrigin(String bankOrigin) {
+        public Builder bankOrigin(String bankOrigin) {
             this.bankOrigin = bankOrigin;
             return this;
         }
 
-        public AccountBuilder number(String number) {
+        public Builder number(String number) {
             this.number = number;
             return this;
         }
 
-        public AccountBuilder agency(String agency) {
+        public Builder agency(String agency) {
             this.agency = agency;
             return this;
         }
 
-        public AccountBuilder user(User user) {
+        public Builder user(User user) {
             this.user = user;
             return this;
         }
 
-        public AccountBuilder balance(Integer balance) {
+        public Builder balance(Long balance) {
             this.balance = balance;
             return this;
         }

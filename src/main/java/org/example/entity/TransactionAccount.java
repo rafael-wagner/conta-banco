@@ -1,42 +1,63 @@
 package org.example.entity;
 
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Entity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.example.entity.jsonView.BankAccountView;
 
-public class TransactionAccount extends BankAccount{
+import java.io.Serializable;
 
+@Entity
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class TransactionAccount extends BankAccount implements Serializable {
+
+    @JsonView(BankAccountView.Detailed.class)
     private Integer withdrawalLimit;
 
-    public TransactionAccount(){}
+    @JsonView(BankAccountView.Detailed.class)
+    private Byte withdrawalTax;
 
-    public TransactionAccount(CheckingAccountBuilder builder){
+    public TransactionAccount() {
+    }
+
+    @Override
+    public Long withdraw(Long withdrawValue) {
+        if(withdrawValue > withdrawalLimit){
+            withdrawValue = withdrawValue + withdrawValue*withdrawalTax;
+        }
+
+        if(withdrawValue > getBalance()){
+            return 0L;
+        }
+
+        setBalance(getBalance() - withdrawValue);
+        return withdrawValue;
+    }
+
+    public TransactionAccount(Builder builder){
         super(builder);
         this.withdrawalLimit = builder.withdrawalLimit;
+        this.withdrawalTax = builder.withdrawalTax;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        TransactionAccount that = (TransactionAccount) o;
-        return Objects.equals(withdrawalLimit, that.withdrawalLimit);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), withdrawalLimit);
-    }
-
-    public static class CheckingAccountBuilder extends BankAccount.AccountBuilder{
+    public static class Builder extends BankAccount.Builder {
         private Integer withdrawalLimit;
+        private Byte withdrawalTax;
 
-        public CheckingAccountBuilder withdrawalLimit(Integer withdrawalLimit) {
+        public Builder withdrawalLimit(Integer withdrawalLimit) {
             this.withdrawalLimit = withdrawalLimit;
             return this;
         }
 
+        public Builder withdrawalTax(Byte withdrawalTax) {
+            this.withdrawalTax = withdrawalTax;
+            return this;
+        }
+
         @Override
-        public BankAccount build() {
+        public TransactionAccount build() {
             return new TransactionAccount(this);
         }
     }

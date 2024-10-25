@@ -1,42 +1,44 @@
 package org.example.entity;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Entity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.example.entity.jsonView.BankAccountView;
+
+import java.io.Serializable;
 import java.util.Objects;
 
-public class SavingAccount extends BankAccount{
+@Entity
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class SavingAccount extends BankAccount implements Serializable {
 
-    private Integer interestRate;
+    @JsonView(BankAccountView.Detailed.class)
+    private Byte interestRate;
 
-    public Integer getInterestRate() {
-        return interestRate;
+    public SavingAccount() {
     }
 
-    public void setInterestRate(Integer interestRate) {
-        this.interestRate = interestRate;
-    }
-
-    public SavingAccount(SavingAccountBuilder builder) {
+    public SavingAccount(Builder builder) {
         super(builder);
         this.interestRate = builder.interestRate;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        SavingAccount that = (SavingAccount) o;
-        return Objects.equals(interestRate, that.interestRate);
+    public Long withdraw(Long withdrawValue) {
+        if(withdrawValue > getBalance()){
+            return 0L;
+        }
+        long finalBalance = getBalance() - withdrawValue;
+        setBalance(finalBalance);
+        return withdrawValue;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), interestRate);
-    }
+    public static class Builder extends BankAccount.Builder {
+        private Byte interestRate;
 
-    public static class SavingAccountBuilder extends BankAccount.AccountBuilder{
-        private Integer interestRate;
-
-        public SavingAccountBuilder setInterestRate(Integer interestRate) {
+        public Builder interestRate(Byte interestRate) {
             this.interestRate = interestRate;
             return this;
         }
