@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.entity.BankAccount;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

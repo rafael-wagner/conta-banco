@@ -2,50 +2,29 @@ package org.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.example.entity.jsonView.BankAccountView;
+import org.example.exception.UnacceptableMovementException;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SavingAccount extends BankAccount implements Serializable {
 
     @JsonView(BankAccountView.Detailed.class)
     private Byte interestRate;
 
-    public SavingAccount() {
-    }
-
-    public SavingAccount(Builder builder) {
-        super(builder);
-        this.interestRate = builder.interestRate;
-    }
-
     @Override
-    public Long withdraw(Long withdrawValue) {
-        if(withdrawValue > getBalance()){
-            return 0L;
+    public void withdraw(Long withdrawValue) throws UnacceptableMovementException {
+        if (withdrawValue > getBalance()) {
+            throw new UnacceptableMovementException(UnacceptableMovementException.Reason.EXCEEDING_BALANCE_LIMIT);
         }
-        long finalBalance = getBalance() - withdrawValue;
-        setBalance(finalBalance);
-        return withdrawValue;
+        this.setBalance(getBalance() - withdrawValue);
     }
 
-    public static class Builder extends BankAccount.Builder {
-        private Byte interestRate;
-
-        public Builder interestRate(Byte interestRate) {
-            this.interestRate = interestRate;
-            return this;
-        }
-
-        @Override
-        public BankAccount build() {
-            return new SavingAccount(this);
-        }
-    }
 }

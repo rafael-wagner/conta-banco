@@ -2,15 +2,18 @@ package org.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.example.entity.jsonView.BankAccountView;
+import org.example.exception.UnacceptableMovementException;
 
 import java.io.Serializable;
 
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TransactionAccount extends BankAccount implements Serializable {
 
     @JsonView(BankAccountView.Detailed.class)
@@ -19,47 +22,17 @@ public class TransactionAccount extends BankAccount implements Serializable {
     @JsonView(BankAccountView.Detailed.class)
     private Byte withdrawalTax;
 
-    public TransactionAccount() {
-    }
-
     @Override
-    public Long withdraw(Long withdrawValue) {
+    public void withdraw(Long withdrawValue) {
         if(withdrawValue > withdrawalLimit){
             withdrawValue = withdrawValue + withdrawValue*withdrawalTax;
         }
 
         if(withdrawValue > getBalance()){
-            return 0L;
+            throw new UnacceptableMovementException(UnacceptableMovementException.Reason.EXCEEDING_BALANCE_LIMIT);
         }
 
-        setBalance(getBalance() - withdrawValue);
-        return withdrawValue;
-    }
-
-    public TransactionAccount(Builder builder){
-        super(builder);
-        this.withdrawalLimit = builder.withdrawalLimit;
-        this.withdrawalTax = builder.withdrawalTax;
-    }
-
-    public static class Builder extends BankAccount.Builder {
-        private Integer withdrawalLimit;
-        private Byte withdrawalTax;
-
-        public Builder withdrawalLimit(Integer withdrawalLimit) {
-            this.withdrawalLimit = withdrawalLimit;
-            return this;
-        }
-
-        public Builder withdrawalTax(Byte withdrawalTax) {
-            this.withdrawalTax = withdrawalTax;
-            return this;
-        }
-
-        @Override
-        public TransactionAccount build() {
-            return new TransactionAccount(this);
-        }
+        this.setBalance(getBalance() - withdrawValue);
     }
 
 }

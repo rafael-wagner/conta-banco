@@ -1,7 +1,6 @@
 package org.example.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import org.example.dao.UserDao;
 import org.example.entity.BankAccount;
 import org.example.entity.User;
 import org.example.entity.jsonView.BankAccountView;
@@ -29,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createUser(@RequestBody UserDao user){
+    public ResponseEntity<?> createUser(@RequestBody @JsonView(UserView.Basic.class) User user){
         return accountService.saveUser(user);
     }
 
