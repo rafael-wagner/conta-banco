@@ -51,8 +51,6 @@ public abstract class AccountBalanceMovement implements Serializable {
     @JsonIgnore
     private MovementStatus status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "destination_account_id", nullable = true)
     @JsonView(BankAccountView.Basic.class)
     private UUID transferAccount;
 

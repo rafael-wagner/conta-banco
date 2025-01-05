@@ -16,7 +16,6 @@ import java.util.UUID;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class BankAccount implements Serializable {
 
@@ -28,7 +27,6 @@ public abstract class BankAccount implements Serializable {
     @JsonView(BankAccountView.Basic.class)
     private String bankOrigin;
 
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @JsonView(BankAccountView.Basic.class)
     @Column(unique = true)
     private Long number;

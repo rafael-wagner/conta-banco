@@ -22,17 +22,4 @@ public class TransactionAccount extends BankAccount implements Serializable {
     @JsonView(BankAccountView.Detailed.class)
     private Byte withdrawalTax;
 
-    @Override
-    public void withdraw(Long withdrawValue) {
-        if(withdrawValue > withdrawalLimit){
-            withdrawValue = withdrawValue + withdrawValue*withdrawalTax;
-        }
-
-        if(withdrawValue > getBalance()){
-            throw new UnacceptableMovementException(UnacceptableMovementException.Reason.EXCEEDING_BALANCE_LIMIT);
-        }
-
-        this.setBalance(getBalance() - withdrawValue);
-    }
-
 }

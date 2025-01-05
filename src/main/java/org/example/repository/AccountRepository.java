@@ -13,8 +13,8 @@ import java.util.UUID;
 public interface AccountRepository extends JpaRepository<BankAccount,Long> {
 
     @Query("select a from BankAccount a where a.user.id = :id")
-    public List<BankAccount> findByClientId(UUID id);
+    List<BankAccount> findByClientId(UUID id);
 
-    @Query("select a from BankAccount a where a.number = :originAccountNumber")
+    @Query("select a from BankAccount a where a.number = :accountNumber")
     Optional<BankAccount> findByAccountNumber(Long accountNumber);
 }
