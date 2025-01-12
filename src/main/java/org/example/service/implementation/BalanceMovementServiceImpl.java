@@ -168,51 +168,9 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
         originAccount = this.withdrawFromCreditAccount((CreditAccount) originAccount, balanceMovementInfo.getValue());
         this.saveAccountBalanceUpdate(originAccount, balanceMovement);
 
-        if (destinationAccount instanceof CreditAccount) {
+        this.depositTransferAmount(originAccount, destinationAccount, balanceMovementInfo);
 
-            AccountBalanceMovement balanceMovementReceivedTransfer = CreditAccountMovement.builder()
-                    .movementAccount((CreditAccount) destinationAccount)
-                    .transferAccount(originAccount.getUuid())
-                    .movementValue(balanceMovementInfo.getValue())
-                    .movementStartTime(LocalDateTime.now())
-                    .movementLastStatus(LocalDateTime.now())
-                    .type(AccountBalanceMovement.MovementType.RECEIVED_TRANSFER)
-                    .status(AccountBalanceMovement.MovementStatus.STARTED)
-                    .build();
-
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
-
-        } else if (destinationAccount instanceof TransactionAccount) {
-
-            AccountBalanceMovement balanceMovementReceivedTransfer = TransactionAccountMovement.builder()
-                    .movementAccount((TransactionAccount) destinationAccount)
-                    .transferAccount(originAccount.getUuid())
-                    .movementValue(balanceMovementInfo.getValue())
-                    .movementStartTime(LocalDateTime.now())
-                    .movementLastStatus(LocalDateTime.now())
-                    .type(AccountBalanceMovement.MovementType.RECEIVED_TRANSFER)
-                    .status(AccountBalanceMovement.MovementStatus.STARTED)
-                    .build();
-
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
-
-        } else if (destinationAccount instanceof SavingAccount) {
-
-            AccountBalanceMovement balanceMovementReceivedTransfer = SavingAccountMovement.builder()
-                    .movementAccount((SavingAccount) destinationAccount)
-                    .transferAccount(originAccount.getUuid())
-                    .movementValue(balanceMovementInfo.getValue())
-                    .movementStartTime(LocalDateTime.now())
-                    .movementLastStatus(LocalDateTime.now())
-                    .type(AccountBalanceMovement.MovementType.RECEIVED_TRANSFER)
-                    .status(AccountBalanceMovement.MovementStatus.STARTED)
-                    .build();
-
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
-
-        }
-
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        return ResponseEntity.ok(originAccount);
     }
 
     @Override
@@ -242,51 +200,9 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
         originAccount = this.withdrawFromTransactionAccount((TransactionAccount) originAccount, balanceMovementInfo.getValue());
         this.saveAccountBalanceUpdate(originAccount, balanceMovement);
 
-        if (destinationAccount instanceof CreditAccount) {
+        this.depositTransferAmount(originAccount,destinationAccount,balanceMovementInfo);
 
-            AccountBalanceMovement balanceMovementReceivedTransfer = CreditAccountMovement.builder()
-                    .movementAccount((CreditAccount) destinationAccount)
-                    .transferAccount(originAccount.getUuid())
-                    .movementValue(balanceMovementInfo.getValue())
-                    .movementStartTime(LocalDateTime.now())
-                    .movementLastStatus(LocalDateTime.now())
-                    .type(AccountBalanceMovement.MovementType.RECEIVED_TRANSFER)
-                    .status(AccountBalanceMovement.MovementStatus.STARTED)
-                    .build();
-
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
-
-        } else if (destinationAccount instanceof TransactionAccount) {
-
-            AccountBalanceMovement balanceMovementReceivedTransfer = TransactionAccountMovement.builder()
-                    .movementAccount((TransactionAccount) destinationAccount)
-                    .transferAccount(originAccount.getUuid())
-                    .movementValue(balanceMovementInfo.getValue())
-                    .movementStartTime(LocalDateTime.now())
-                    .movementLastStatus(LocalDateTime.now())
-                    .type(AccountBalanceMovement.MovementType.RECEIVED_TRANSFER)
-                    .status(AccountBalanceMovement.MovementStatus.STARTED)
-                    .build();
-
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
-
-        } else if (destinationAccount instanceof SavingAccount) {
-
-            AccountBalanceMovement balanceMovementReceivedTransfer = SavingAccountMovement.builder()
-                    .movementAccount((SavingAccount) destinationAccount)
-                    .transferAccount(originAccount.getUuid())
-                    .movementValue(balanceMovementInfo.getValue())
-                    .movementStartTime(LocalDateTime.now())
-                    .movementLastStatus(LocalDateTime.now())
-                    .type(AccountBalanceMovement.MovementType.RECEIVED_TRANSFER)
-                    .status(AccountBalanceMovement.MovementStatus.STARTED)
-                    .build();
-
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
-
-        }
-
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+        return ResponseEntity.ok(originAccount);
 
     }
 
@@ -335,6 +251,17 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
         originAccount = this.withdrawFromSavingAccount((SavingAccount) originAccount, balanceMovementInfo.getValue());
         this.saveAccountBalanceUpdate(originAccount, balanceMovement);
 
+        this.depositTransferAmount(originAccount,destinationAccount,balanceMovementInfo);
+
+        return ResponseEntity.ok(originAccount);
+
+    }
+
+    private void depositTransferAmount(
+            BankAccount originAccount,
+            BankAccount destinationAccount,
+            BalanceMovementInfoDto balanceMovementInfo) {
+
         if (destinationAccount instanceof CreditAccount) {
 
             AccountBalanceMovement balanceMovementReceivedTransfer = CreditAccountMovement.builder()
@@ -347,7 +274,7 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
                     .status(AccountBalanceMovement.MovementStatus.STARTED)
                     .build();
 
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
+            this.depositMovement(destinationAccount, balanceMovementReceivedTransfer);
 
         } else if (destinationAccount instanceof TransactionAccount) {
 
@@ -361,7 +288,7 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
                     .status(AccountBalanceMovement.MovementStatus.STARTED)
                     .build();
 
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
+            this.depositMovement(destinationAccount, balanceMovementReceivedTransfer);
 
         } else if (destinationAccount instanceof SavingAccount) {
 
@@ -375,11 +302,11 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
                     .status(AccountBalanceMovement.MovementStatus.STARTED)
                     .build();
 
-            return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovementReceivedTransfer));
+            this.depositMovement(destinationAccount, balanceMovementReceivedTransfer);
 
+        } else {
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
         }
-
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
 
     }
 
@@ -415,9 +342,10 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
                 .type(AccountBalanceMovement.MovementType.MISC)
                 .status(AccountBalanceMovement.MovementStatus.STARTED)
                 .build();
-        this.depositMovement(destinationAccount,balanceMovement);
 
-        return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovement));
+        destinationAccount = this.depositMovement(destinationAccount, balanceMovement);
+
+        return ResponseEntity.ok(destinationAccount);
 
     }
 
@@ -436,9 +364,9 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
                 .type(AccountBalanceMovement.MovementType.MISC)
                 .status(AccountBalanceMovement.MovementStatus.STARTED)
                 .build();
-        this.depositMovement(destinationAccount,balanceMovement);
+        destinationAccount = this.depositMovement(destinationAccount, balanceMovement);
 
-        return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovement));
+        return ResponseEntity.ok(destinationAccount);
     }
 
     @Override
@@ -456,9 +384,9 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
                 .type(AccountBalanceMovement.MovementType.MISC)
                 .status(AccountBalanceMovement.MovementStatus.STARTED)
                 .build();
-        this.depositMovement(destinationAccount,balanceMovement);
+        destinationAccount = this.depositMovement(destinationAccount, balanceMovement);
 
-        return ResponseEntity.ok(this.depositMovement(destinationAccount, balanceMovement));
+        return ResponseEntity.ok(destinationAccount);
     }
 
     @Override

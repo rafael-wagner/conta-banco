@@ -2,9 +2,12 @@ package org.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.example.entity.jsonView.BankAccountView;
-import org.example.exception.UnacceptableMovementException;
 
 import java.io.Serializable;
 
@@ -13,11 +16,11 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 public class TransactionAccount extends BankAccount implements Serializable {
 
     @JsonView(BankAccountView.Detailed.class)
-    private Integer withdrawalLimit;
+    private Long withdrawalLimit;
 
     @JsonView(BankAccountView.Detailed.class)
     private Byte withdrawalTax;

@@ -3,9 +3,9 @@ package org.example.entity;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.example.entity.jsonView.BankAccountView;
 import org.example.entity.jsonView.UserView;
 
@@ -17,6 +17,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@SuperBuilder
 public abstract class BankAccount implements Serializable {
 
     @Id

@@ -2,16 +2,19 @@ package org.example.entity;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.example.entity.jsonView.BankAccountView;
-import org.example.exception.UnacceptableMovementException;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@Builder
+@SuperBuilder
 public class CreditAccount extends BankAccount{
 
     @JsonView(BankAccountView.Detailed.class)
