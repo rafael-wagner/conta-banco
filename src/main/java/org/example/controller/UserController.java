@@ -28,7 +28,10 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createUser(@RequestBody @JsonView(UserView.Basic.class) User user){
+    public ResponseEntity<?> createUser(
+            @RequestBody
+            @JsonView(UserView.Basic.class)
+            User user){
         return accountService.saveUser(user);
     }
 

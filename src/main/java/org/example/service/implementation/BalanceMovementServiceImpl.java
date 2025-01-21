@@ -144,9 +144,7 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
     @Transactional
     public ResponseEntity<BankAccount> creditAccountTransfer(BalanceMovementInfoDto balanceMovementInfo) {
 
-        if (balanceMovementInfo.getDestinationAccountNumber() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        this.checkIfValidAccountNumbersForTransfer(balanceMovementInfo);
 
         BankAccount originAccount =
                 this.getBankAccountFromDbByNumber(balanceMovementInfo.getOriginAccountNumber());
@@ -176,9 +174,7 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
     @Override
     public ResponseEntity<BankAccount> transactionAccountTransfer(BalanceMovementInfoDto balanceMovementInfo) {
 
-        if (balanceMovementInfo.getDestinationAccountNumber() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        this.checkIfValidAccountNumbersForTransfer(balanceMovementInfo);
 
         BankAccount originAccount =
                 this.getBankAccountFromDbByNumber(balanceMovementInfo.getOriginAccountNumber());
@@ -200,10 +196,19 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
         originAccount = this.withdrawFromTransactionAccount((TransactionAccount) originAccount, balanceMovementInfo.getValue());
         this.saveAccountBalanceUpdate(originAccount, balanceMovement);
 
-        this.depositTransferAmount(originAccount,destinationAccount,balanceMovementInfo);
+        this.depositTransferAmount(originAccount, destinationAccount, balanceMovementInfo);
 
         return ResponseEntity.ok(originAccount);
 
+    }
+
+    private void checkIfValidAccountNumbersForTransfer(BalanceMovementInfoDto balanceMovementInfo) {
+        if (
+                balanceMovementInfo.getDestinationAccountNumber() == null ||
+                        balanceMovementInfo.getOriginAccountNumber().equals(balanceMovementInfo.getDestinationAccountNumber())
+        ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
     private BankAccount withdrawFromTransactionAccount(TransactionAccount originTransactionAccount, Long value) {
@@ -227,9 +232,7 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
     @Override
     public ResponseEntity<BankAccount> savingAccountTransfer(BalanceMovementInfoDto balanceMovementInfo) {
 
-        if (balanceMovementInfo.getDestinationAccountNumber() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-        }
+        this.checkIfValidAccountNumbersForTransfer(balanceMovementInfo);
 
         BankAccount originAccount =
                 this.getBankAccountFromDbByNumber(balanceMovementInfo.getOriginAccountNumber());
@@ -251,7 +254,7 @@ public class BalanceMovementServiceImpl implements BalanceMovementService {
         originAccount = this.withdrawFromSavingAccount((SavingAccount) originAccount, balanceMovementInfo.getValue());
         this.saveAccountBalanceUpdate(originAccount, balanceMovement);
 
-        this.depositTransferAmount(originAccount,destinationAccount,balanceMovementInfo);
+        this.depositTransferAmount(originAccount, destinationAccount, balanceMovementInfo);
 
         return ResponseEntity.ok(originAccount);
 
